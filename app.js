@@ -4,8 +4,18 @@ const dotenv = require('dotenv'); // Модуль для работы с .env ф
 const bodyParser = require('body-parser'); // Body-parser для преобразования тела запроса
 const { PORT = 3000 } = process.env;
 
+// Роутеры
+const articlesRouter = require('./routes/articles');
+const usersRouter = require('./routes/users');
+
+// Контроллеры авторизации
+const createUser = require('./controllers/createUser'); // Регистрация на сайте
+
 // Объявили приложение экспресс
 const app = express();
+
+// Подключили модуль body-parser для json запросов
+app.use(bodyParser.json());
 
 // Подключились к базе данных
 mongoose.connect('mongodb://localhost:27017/newsExplorer', {
@@ -19,6 +29,22 @@ app.listen(PORT, () => {
   console.log(`App started. Listening at port ${PORT}`);
 });
 
-app.use('/', (req, res) => {
-  res.send('Hello, world');
+// Временная авторизация
+app.use((req, res, next) => {
+  req.user = '5fcfe448fb12dd2af1ffba9f';
+  next();
+});
+
+// Роутинг приложения
+app.use('/signup', createUser);
+app.use('/signin', createUser);
+app.use('/', articlesRouter);
+app.use('/', usersRouter);
+
+// Обработчик ошибок в конце файла после других мидллвэров (чтобы отловить все ошибки)
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+  // Если у ошибки статус 500 - отправляем стандартное сообщение об ошибке
+  res.status(statusCode).send({ message: statusCode === 500 ? 'Ошибка на сервере' : message });
+  next();
 });
