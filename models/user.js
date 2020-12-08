@@ -33,7 +33,7 @@ const userSchema = new Schema({
 
 // Эта функция не должна быть стрелочной, потому что стрелочные функции запоминают свой THIS
 // А нам нужно чтобы this был привязан именно к схеме юзера, а не к месту вызова этого метода
-userSchema.statics.findUserByCredintials = function (email, password) {
+userSchema.statics.findUserByCredentials = function (email, password) {
   // Нашли в базе данных пользователя по email
   return this.findOne({ email }).select('+password').then((user) => {
     // Если такого юзера нет, вернётся Null
