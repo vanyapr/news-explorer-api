@@ -1,6 +1,6 @@
 ##Hidding node modules and dist folders from git - Задание практикума
-*.log
 node_modules
+*.log
 .npm
 .env
 request.log
