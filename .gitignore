@@ -1,4 +1,4 @@
-##Hidding node modules and dist folders from git - Задание практикума
+##Скрываем директории модулей, логи и файлы окружения
 node_modules
 *.log
 .npm
