@@ -1,6 +1,8 @@
+const dotenv = require('dotenv'); // Модуль для работы с .env файлами
+dotenv.config(); // Сконфигурировали модуль для работы с файлами .env
 const express = require('express'); // Экспресс
 const mongoose = require('mongoose'); // Работа с бд монго
-const dotenv = require('dotenv'); // Модуль для работы с .env файлами
+const cors = require('cors'); // Модуль для решения проблемы с CORS
 const bodyParser = require('body-parser'); // Body-parser для преобразования тела запроса
 const { PORT = 3000 } = process.env;
 
@@ -8,14 +10,21 @@ const { PORT = 3000 } = process.env;
 const articlesRouter = require('./routes/articles');
 const usersRouter = require('./routes/users');
 
-// Контроллеры авторизации
+// Контроллеры авторизации и регистрации
 const createUser = require('./controllers/createUser'); // Регистрация на сайте
+const login = require('./controllers/login'); // Регистрация на сайте
+
+// Мидллвэры
+const authorise = require('./middlewares/authorise'); // Мидллвэр авторизации
 
 // Объявили приложение экспресс
 const app = express();
 
 // Подключили модуль body-parser для json запросов
 app.use(bodyParser.json());
+
+// Подключили решение для CORS заголосков
+app.use(cors());
 
 // Подключились к базе данных
 mongoose.connect('mongodb://localhost:27017/newsExplorer', {
@@ -29,17 +38,11 @@ app.listen(PORT, () => {
   console.log(`App started. Listening at port ${PORT}`);
 });
 
-// Временная авторизация
-app.use((req, res, next) => {
-  req.user = '5fcfe448fb12dd2af1ffba9f';
-  next();
-});
-
 // Роутинг приложения
 app.use('/signup', createUser);
-app.use('/signin', createUser);
-app.use('/', articlesRouter);
-app.use('/', usersRouter);
+app.use('/signin', login);
+app.use('/', authorise, articlesRouter);
+app.use('/', authorise, usersRouter);
 
 // Обработчик ошибок в конце файла после других мидллвэров (чтобы отловить все ошибки)
 app.use((err, req, res, next) => {

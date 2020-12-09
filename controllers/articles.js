@@ -6,7 +6,7 @@ const Article = require('../models/article');
 // Возвращает массив сохранённых пользователем статей
 const getAllMyArticles = (req, res, next) => {
   // Объявили владельца статьи для удобочитаемости кода
-  const owner = req.user;
+  const owner = req.user._id;
 
   // Нашли в базе данных все статьи этого владельца
   Article.find({ owner })
@@ -19,7 +19,7 @@ const getAllMyArticles = (req, res, next) => {
 // Создаёт статью в базе данных
 const createArticle = (req, res, next) => {
   // Объявили владельца статьи для удобочитаемости кода
-  const owner = req.user;
+  const owner = req.user._id;
 
   // Получили данные из запроса
   const { keyword, title, text, date, source, link, image } = req.body;
@@ -50,7 +50,7 @@ const createArticle = (req, res, next) => {
 // Удаляет статью по её ID
 const deleteArticle = (req, res, next) => {
   // Объявили текущего юзера для удобочитаемости кода
-  const owner = req.user;
+  const owner = req.user._id;
 
   // Получили ID статьи из строки запроса
   const { articleId } = req.params;
