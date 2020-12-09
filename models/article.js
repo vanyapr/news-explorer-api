@@ -1,5 +1,7 @@
 const { model, Schema } = require('mongoose'); // Использовали деструктурирующее присваивание
 const validator = require('validator'); // Модуль для валидации данных (имейл)
+const UnauthorisedError = require('../errors/unauthorised'); // Ошибка "Авторизуйтесь"
+const NotFoundError = require('../errors/notFound'); // Ошибка "404"
 
 const articleSchema = new Schema({
   keyword: {
@@ -79,5 +81,28 @@ const articleSchema = new Schema({
     select: false, // Запретили базе возвращать поле владельца напрямую
   },
 });
+
+// Статичный метод удаления статьи, удалит статью при наличии прав или вернёт реджект
+// Эта функция не должна быть стрелочной, потому что стрелочные функции запоминают свой THIS
+// А нам нужно чтобы this был привязан именно к схеме юзера, а не к месту вызова этого метода
+articleSchema.statics.checkOwnerAndDelete = function (userId, articleId) {
+  // Нашли в базе данных пользователя по email
+  return this.findOne({ _id: articleId }).select('+owner').then((article) => {
+    // Если такой статьи не существует, вернётся Null
+    if (!article) {
+      // Если статья не найдена, вернём реджект в блок catch снаружи
+      return Promise.reject(new NotFoundError('Статья не найдена'));
+    }
+
+    // Если статья найдена, нужно сравнить идентификатор владельца с переданным идентификатором
+    if (userId.toString() === article.owner.toString()) { // Так сравнивает корректно
+      // Если идентификаторы совпали, можно удалить статью
+      return this.findOneAndDelete({ _id: articleId }); // Удалили статью из базы и вернули промис
+    }
+
+    // Если статья найдена, но идентификаторы не совпали, вернём реджект "не авторизованый запрос"
+    return Promise.reject(new UnauthorisedError('У вас нет прав на удаление этой статьи'));
+  });
+};
 
 module.exports = model('article', articleSchema);

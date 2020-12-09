@@ -49,29 +49,17 @@ const createArticle = (req, res, next) => {
 
 // Удаляет статью по её ID
 const deleteArticle = (req, res, next) => {
+  // Объявили текущего юзера для удобочитаемости кода
+  const owner = req.user;
+
   // Получили ID статьи из строки запроса
   const { articleId } = req.params;
 
-  Article.findById(articleId).then((article) => {
-    // Если статья найдена
-    if (article) {
-      // Нам нужно сравнить идентификаторы владельца и текущего пользователя
-      // При точном сравнении id не сравниваются корректно без приведения к строке
-      // FIXME: реализовать метод проверки прав пользователя на статью
-      if (article.owner.toString() === req.user.toString()) {
-        console.log('User is owner');
-        // Если текущий пользователь является владельцем, можно удалить карточку
-        return Article.findByIdAndDelete(articleId).then((deletedArticleData) => {
-          res.send(deletedArticleData);
-        });
-      }
-
-      // Если юзер не авторизован, мы вернём ошибку
-      return Promise.reject(new UnauthorisedError('У вас нет прав на удаление этой карточки'));
-    }
-    // Если статья не найдена, mongo вернёт Null, и мы вернём ошибку 404
-    return Promise.reject(new NotFoundError('Статья не найдена'));
-  }).catch(next);
+  // Использовали статический метод удаления статьи
+  Article.checkOwnerAndDelete(owner, articleId).then((deletedArticle) => {
+    res.send(deletedArticle);// Вернули данные удаленной статьи.catch(next);
+  })
+    .catch(next); // Отловили ошибки и передали их в единый обработчик
 };
 
 module.exports = {
