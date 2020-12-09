@@ -10,7 +10,14 @@ const createUser = (req, res, next) => {
     // Создали пользователя с хешем пароля вместо самого пароля
     .then((passwordHash) => User.create({ email, password: passwordHash, name }))
     .then((createdUser) => {
-      res.send(createdUser); // Вернули данные вновь созданного пользователя
+      // Пересоберём ответ, чтобы не отправлять обратно хеш пароля
+      const responce = {
+        _id: createdUser._id,
+        email: createdUser.email,
+        name: createdUser.name,
+      };
+      // Вернули пересобранный ответ без хеша пароля
+      res.send(responce); // Вернули данные вновь созданного пользователя
     })
     .catch((error) => { // Отловили ошибки
       // Если это ошибка валидации, сгенерируем соответствующую ошибку

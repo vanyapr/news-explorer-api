@@ -7,7 +7,7 @@ const cors = require('cors'); // Модуль для решения пробле
 const bodyParser = require('body-parser'); // Body-parser для преобразования тела запроса
 const rateLimit = require('express-rate-limit'); // Модуль для ограничения числа запросов в минуту
 const { requestLogger, errorLogger } = require('./middlewares/logger'); // Логгер запросов и ошибок
-const { PORT = 3000 } = process.env; // Переменные окружения - порт
+const { PORT = 3000, DATABASE_URL = 'mongodb://localhost:27017/test' } = process.env; // Переменные окружения
 
 // Роутеры
 const articlesRouter = require('./routes/articles');
@@ -40,7 +40,7 @@ app.use(bodyParser.json());
 app.use(cors());
 
 // Подключились к базе данных
-mongoose.connect('mongodb://localhost:27017/newsExplorer', {
+mongoose.connect(DATABASE_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useFindAndModify: false,
