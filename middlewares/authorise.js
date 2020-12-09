@@ -1,6 +1,6 @@
-const jwt = require('jsonwebtoken');
-const UnauthorisedError = require('../errors/unauthorised');
-const { JWT_SECRET = 'development_only_secret_key' } = process.env;
+const jwt = require('jsonwebtoken'); // Модуль для работы с JWT
+const UnauthorisedError = require('../errors/unauthorised'); // Ошибка "Не авторизован"
+const { JWT_SECRET = 'development_only_secret_key' } = process.env; // Переменные окружения - секретный ключ
 
 const authorise = (req, res, next) => {
   const { authorization } = req.headers; // Получили JWT токен из хидера
@@ -17,11 +17,11 @@ const authorise = (req, res, next) => {
   let payload;
 
   try {
-    // Метод jwt.verify() вернёт пэйлоад токена
+    // Метод jwt.verify() вернёт расшифрованный пэйлоад токена
     payload = jwt.verify(token, JWT_SECRET); // Вторым аргументом передали секретный ключ
   } catch (error) {
     // Если что-то пошло не так, вернётся ошибка, которую надо обработать в блоке catch
-    // В целях дебагинга и наглядности мы распишем текст ошибки
+    // В целях дебагинга и наглядности мы распишем текст ошибки детально
     next(new UnauthorisedError('Необходима авторизация: токен недействителен или просрочен'));
     return;
   }

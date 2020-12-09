@@ -56,10 +56,25 @@ const deleteArticle = (req, res, next) => {
   const { articleId } = req.params;
 
   // Использовали статический метод удаления статьи
-  Article.checkOwnerAndDelete(owner, articleId).then((deletedArticle) => {
-    res.send(deletedArticle);// Вернули данные удаленной статьи.catch(next);
-  })
-    .catch(next); // Отловили ошибки и передали их в единый обработчик
+  Article.findById(articleId).then((article) => {
+    // Если статья не найдена, вернём 404 ошибку
+    if (!article) {
+      return Promise.reject(new NotFoundError('Статья не найдена'));
+    }
+
+    Article.checkOwner(owner, articleId).then((isOwner) => {
+      // Если прав нет, никакого удаления
+      if (!isOwner) {
+        return Promise.reject(new UnauthorisedError('У вас нет прав на удаление этой статьи'));
+      }
+
+      // Если права есть, вернём промис на удаление статьи
+      return Article.findByIdAndDelete(articleId)
+        .then((deletedArticle) => {
+          res.send(deletedArticle);
+        });
+    }).catch(next);
+  });
 };
 
 module.exports = {

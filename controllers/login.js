@@ -1,7 +1,7 @@
-const jwt = require('jsonwebtoken');
-const UnauthorisedError = require('../errors/unauthorised');
-const { JWT_SECRET = 'development_only_secret_key' } = process.env;
-const User = require('../models/user');
+const jwt = require('jsonwebtoken'); // Модуль для работы с JWT
+const UnauthorisedError = require('../errors/unauthorised'); // Ошибка "Не авторизован"
+const { JWT_SECRET = 'development_only_secret_key' } = process.env; // Переменные окружения - секретный ключ
+const User = require('../models/user'); // Модель юзера
 
 const login = (req, res, next) => {
   // Получим данные из тела запроса
