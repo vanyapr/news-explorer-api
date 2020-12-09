@@ -5,6 +5,7 @@ const express = require('express'); // Экспресс
 const mongoose = require('mongoose'); // Работа с бд монго
 const cors = require('cors'); // Модуль для решения проблемы с CORS
 const bodyParser = require('body-parser'); // Body-parser для преобразования тела запроса
+const rateLimit = require('express-rate-limit'); // Модуль для ограничения числа запросов в минуту
 const { requestLogger, errorLogger } = require('./middlewares/logger'); // Логгер запросов и ошибок
 const { PORT = 3000 } = process.env; // Переменные окружения - порт
 
@@ -22,6 +23,15 @@ const authorise = require('./middlewares/authorise'); // Мидллвэр авт
 
 // Объявили приложение экспресс
 const app = express();
+
+// Рэйт лимиттер
+const limiter = rateLimit({
+  // Я исхожу из того, что при каждой загрузке или добавлении карточки будет выполняться
+  // по примерно 10 запросов, итого 1000 запросов на 15 минут должно хватить
+  windowMs: 15 * 60 * 1000, // за 15 минут
+  max: 1000, // можно совершить максимум 100 запросов с одного IP
+});
+app.use(limiter); // Включили рейт лимит для приложения
 
 // Подключили модуль body-parser для json запросов
 app.use(bodyParser.json());
