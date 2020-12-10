@@ -1,5 +1,5 @@
 const WrongDataError = require('../errors/wrongData'); // Ошибка "Неправильные данные"
-const UnauthorisedError = require('../errors/unauthorised'); // Ошибка "Авторизуйтесь"
+const ForbiddenError = require('../errors/forbiddenError'); // Ошибка Нельзя
 const NotFoundError = require('../errors/notFound'); // Ошибка "404"
 const Article = require('../models/article');
 
@@ -65,7 +65,7 @@ const deleteArticle = (req, res, next) => {
     Article.checkOwner(owner, articleId).then((isOwner) => {
       // Если прав нет, никакого удаления
       if (!isOwner) {
-        return Promise.reject(new UnauthorisedError('У вас нет прав на удаление этой статьи'));
+        return Promise.reject(new ForbiddenError('У вас нет прав на удаление этой статьи'));
       }
 
       // Если права есть, вернём промис на удаление статьи
