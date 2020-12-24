@@ -25,7 +25,7 @@ const createUser = (req, res, next) => {
         next(new WrongDataError('Ошибка валидации - исправьте тело запроса'));
       } else if (error.name === 'MongoError') {
         // На боевых проектах так нельзя, но здесь я хочу отловить ошибку более явно
-        next(new WrongDataError('Ошибка валидации - email должен быть уникальным'));
+        next(new WrongDataError('Такой пользователь уже есть'));
       } else {
         // Другие ошибки попадут в централизованный обработчик ошибок со статусом 500
         next(error);
